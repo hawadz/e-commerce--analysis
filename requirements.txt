@@ -3,3 +3,6 @@ pandas==1.5.3
 matplotlib==3.7.1
 seaborn==0.13.1
 streamlit==1.31.1
+setuptools
+wheel
+numpy==1.25.2
