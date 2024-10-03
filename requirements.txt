@@ -1,7 +1,7 @@
-numpy==1.24.0
+numpy==1.23.5
 pandas==1.5.3
 matplotlib==3.7.1
-seaborn==0.13.2
+seaborn==0.12.2  # A version compatible with numpy 1.23
 streamlit==1.31.1
-setuptools==65.5.0  # Update to a more recent version
-wheel==0.40.0       # Ensure 'wheel' is included for building packages
+setuptools==65.5.0
+wheel==0.40.0
