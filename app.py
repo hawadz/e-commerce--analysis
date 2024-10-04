@@ -1,15 +1,18 @@
 import streamlit as st
 import nbformat
 from nbconvert import PythonExporter
-import runpy
 
 # Define the path to your Jupyter notebook
 NOTEBOOK_PATH = "./analysis_data.ipynb"
 
 # Load the Jupyter notebook
 def load_notebook(filename):
-    with open(filename, 'r', encoding='utf-8') as f:
-        return nbformat.read(f, as_version=4)
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            return nbformat.read(f, as_version=4)
+    except FileNotFoundError:
+        st.error(f"Notebook '{filename}' not found. Please check the path.")
+        return None
 
 # Convert Jupyter notebook to Python code
 def convert_notebook_to_python(nb):
@@ -24,9 +27,12 @@ def run_notebook_code(python_code, globals_dict):
 # Streamlit App Interface
 def main():
     st.title("Ecommerce Analysis")
-    
+
     # Load and convert notebook
     notebook_content = load_notebook(NOTEBOOK_PATH)
+    if notebook_content is None:
+        return
+
     python_code = convert_notebook_to_python(notebook_content)
     
     st.subheader("Notebook Preview:")
