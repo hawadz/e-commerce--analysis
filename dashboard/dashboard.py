@@ -1,6 +1,8 @@
 import streamlit as st
 import nbformat
 from nbconvert import PythonExporter
+import matplotlib.pyplot as plt
+import pandas as pd
 
 # Define the path to your Jupyter notebook
 NOTEBOOK_PATH = "./analysis_data.ipynb"
@@ -41,12 +43,27 @@ def main():
     if st.button("Run Notebook"):
         st.subheader("Notebook Output:")
         output_globals = {}
+        plt.figure()  # Ensure a new figure is started before running code
+        
+        # Run the notebook code
         run_notebook_code(python_code, output_globals)
         
         # Display variables from the notebook
         for var_name, value in output_globals.items():
-            if not var_name.startswith("__"):
-                st.write(f"{var_name}: {value}")
+            if isinstance(value, pd.DataFrame):
+                st.subheader(f"DataFrame: {var_name}")
+                st.dataframe(value)  # Display pandas DataFrame
+            elif isinstance(value, (list, dict)):
+                st.subheader(f"{var_name}:")
+                st.write(value)  # Display lists, dictionaries
+            elif not var_name.startswith("__"):
+                st.write(f"{var_name}: {value}")  # Display other variables
+        
+        # Capture and display any matplotlib figures
+        if plt.gcf().get_axes():  # Check if there's any active plot
+            st.pyplot(plt.gcf())  # Display the current figure
+        else:
+            st.write("No plot generated.")
 
 if __name__ == "__main__":
     main()
