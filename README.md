@@ -15,8 +15,8 @@ pip install -r requirements.txt
 ## Setup Environment - Shell/Terminal
 1. Create and navigate to the project directory:
 ```
-mkdir proyek_analisis_data
-cd proyek_analisis_data
+mkdir e-commerce--analysis
+cd e-commerce--analysis
 ```
 2. Install dependencies using Pipenv:
 ```
