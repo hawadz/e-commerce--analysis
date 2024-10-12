@@ -3,3 +3,4 @@ nbconvert
 matplotlib
 seaborn
 ipython
+googletrans
