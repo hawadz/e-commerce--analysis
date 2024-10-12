@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Path to the uploaded Jupyter notebook
-NOTEBOOK_PATH = '../analysis_data.ipynb'
+NOTEBOOK_PATH = './analysis_data.ipynb'
 
 # Load the Jupyter notebook
 def load_notebook(filename):
