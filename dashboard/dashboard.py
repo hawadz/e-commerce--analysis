@@ -1,75 +1,53 @@
-import streamlit as st
-import nbformat
-from nbconvert import PythonExporter
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import streamlit as st
 
-# Path to the uploaded Jupyter notebook
-NOTEBOOK_PATH = './analysis_data.ipynb'
+# Load data
+order_delivery_satisfaction_df = pd.read_csv('https://raw.githubusercontent.com/hawadz/e-commerce--analysis/refs/heads/main/dashboard/order_delivery_satisfaction_df.csv')
+avg_popularity_product_df = pd.read_csv('https://raw.githubusercontent.com/hawadz/e-commerce--analysis/refs/heads/main/data/avg_popularity_product.csv')
 
-# Load the Jupyter notebook
-def load_notebook(filename):
-    with open(filename, 'r', encoding='utf-8') as f:
-        return nbformat.read(f, as_version=4)
+# Dashboard
+st.title('E-commerce Analysis Dashboard')
 
-# Convert Jupyter notebook to Python code
-def convert_notebook_to_python(nb):
-    exporter = PythonExporter()
-    python_code, _ = exporter.from_notebook_node(nb)
-    return python_code
+# Analisis Pertanyaan 1
+st.header('Analisis Pertanyaan 1: Korelasi antara waktu pengiriman pesanan dan tingkat kepuasan pelanggan')
+st.write("Dari scatter plot tersebut, kita dapat melihat pola distribusi titik-titik data antara waktu pengiriman pesanan dan tingkat kepuasan pelanggan.")
+st.write("Jika ada korelasi antara kedua variabel tersebut, kita dapat melihat pola linear atau non-linear yang menunjukkan hubungan antara waktu pengiriman dan tingkat kepuasan pelanggan.")
+st.write("Namun, jika scatter plot menunjukkan pola yang acak dan tersebar secara merata, ini menunjukkan bahwa tidak ada hubungan yang jelas antara waktu pengiriman pesanan dan tingkat kepuasan pelanggan.")
 
-# Execute the converted notebook code and capture matplotlib figures
-def run_notebook_code(python_code, globals_dict):
-    exec(python_code, globals_dict)
+fig = plt.figure(figsize=(8, 4))
+plt.scatter(order_delivery_satisfaction_df['delivery_time'], order_delivery_satisfaction_df['review_score'], alpha=0.5)
+plt.title('Korelasi antara Waktu Pengiriman Pesanan dan Tingkat Kepuasan Pelanggan')
+plt.ylabel('Tingkat Kepuasan Pelanggan')
+plt.xlabel('Waktu Pengiriman Pesanan (hari)')
+plt.grid(True)
+st.pyplot(fig)
 
-# Streamlit App Interface
-def main():
-    st.title("Ecommerce Analysis Dashboard")
+# Analisis Pertanyaan 2
+st.header('Analisis Pertanyaan 2: Rata-rata harga produk per kategori dan popularitas kategori')
+st.write("Rata-rata harga per kategori menunjukkan variasi yang cukup besar, dengan beberapa kategori memiliki harga premium yang lebih tinggi dibandingkan lainnya.")
+st.write("Terdapat beberapa kategori dengan harga rata-rata rendah yang memiliki penjualan tinggi, menunjukkan kemungkinan sensitivitas harga di pasar ini.")
 
-    # Define your business question here
-    st.subheader("Business Question: What are the sales trends for the top categories?")
+fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(12, 10))
 
-    # Load and convert notebook
-    notebook_content = load_notebook(NOTEBOOK_PATH)
-    python_code = convert_notebook_to_python(notebook_content)
+colors = ["#72BCD4", "#D3D3D3", "#D3D3D3", "#D3D3D3", "#D3D3D3"]
 
-    # Automatically run the notebook
-    output_globals = {}
+# Subplot pertama: Bar plot untuk rata-rata harga produk per kategori
+sns.barplot(data=avg_popularity_product_df.head(5), x='price', y='product_category_name_english', palette=colors, ax=ax1)
+ax1.set_title('Rata-rata Harga Produk per Kategori')
+ax1.set_xlabel('Kategori Produk')
+ax1.set_ylabel('Harga Rata-rata Produk')
 
-    # Clear any previous figures in case notebook contains multiple plot commands
-    plt.close('all')
-    
-    # Run the notebook code and capture output
-    run_notebook_code(python_code, output_globals)
-    
-    # Display specific variables that answer the business question
-    st.subheader("Sales Trend Analysis:")
-    
-    # Display DataFrame (if any)
-    if "sales_trend_df" in output_globals:  # Replace with your variable names from the notebook
-        st.dataframe(output_globals["sales_trend_df"])  # Display the DataFrame with sales trends
-        st.markdown("""
-        **Penjelasan:**
-        Tabel di atas menunjukkan tren penjualan berdasarkan kategori produk. Anda dapat melihat setiap baris yang mewakili jumlah penjualan untuk kategori produk tertentu selama periode waktu yang dianalisis. 
-        Informasi ini penting untuk mengidentifikasi kategori yang menunjukkan pertumbuhan atau penurunan dalam penjualan.
-        """)
-    
-    # Display any matplotlib figures related to the question
-    st.subheader("Generated Plots:")
-    figures = [plt.figure(i) for i in plt.get_fignums()]
-    
-    if not figures:
-        st.write("No plots were generated.")
-    else:
-        # Render and display each plot in Streamlit
-        for fig in figures:
-            st.pyplot(fig)
-            st.markdown("""
-            **Penjelasan Grafik:**
-            Grafik ini menunjukkan tren penjualan dari waktu ke waktu untuk berbagai kategori produk. 
-            Naiknya garis menunjukkan peningkatan penjualan, sementara garis yang menurun menunjukkan penurunan dalam penjualan.
-            Grafik ini dapat membantu dalam pengambilan keputusan untuk mengalokasikan sumber daya ke produk-produk dengan performa terbaik.
-            """)
+# Subplot kedua: Bar plot untuk popularitas kategori berdasarkan jumlah produk yang terjual
+sns.barplot(data=avg_popularity_product_df.sort_values(by='product_id', ascending=False).head(5), x='product_id', y='product_category_name_english', palette=colors, ax=ax2)
+ax2.set_title('Popularitas Kategori Berdasarkan Jumlah Produk yang Terjual')
+ax2.set_xlabel('Jumlah Produk Terjual')
+ax2.set_ylabel('Kategori Produk')
 
-if __name__ == "__main__":
-    main()
+plt.tight_layout()
+st.pyplot(fig)
+
+st.write("- *Conclusion 1*: Mengurangi waktu pengiriman dapat secara signifikan meningkatkan kepuasan pelanggan. Mengoptimalkan logistik pengiriman harus menjadi prioritas untuk meningkatkan pengalaman pelanggan.")
+st.write("- *Conclusion 2*: Barang-barang dengan harga tinggi di kategori populer seperti Elektronik dan Pakaian tidak sensitif terhadap harga, menunjukkan adanya peluang untuk promosi strategis dan penyesuaian harga di segmen ini.")
+st.write("- *Future Work*: Analisis tambahan bisa mengeksplorasi faktor-faktor lain yang mempengaruhi kepuasan pelanggan, seperti kualitas produk, tingkat pengembalian, dan layanan pelanggan pasca pembelian.")
